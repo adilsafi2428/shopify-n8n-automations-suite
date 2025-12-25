@@ -1,0 +1,208 @@
+{
+  "name": "01-SKU-Auto-Tagger",
+  "nodes": [
+    {
+      "parameters": {
+        "authentication": "accessToken",
+        "topic": "orders/create"
+      },
+      "type": "n8n-nodes-base.shopifyTrigger",
+      "typeVersion": 1,
+      "position": [
+        
+      ],
+      "id": "",
+      "name": "Shopify: On Order Created",
+      "webhookId": "d7363de8-3cc7-4e5d-a565-bf831876c395"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "line_items",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -1600,
+        -32
+      ],
+      "id": "1e7e798c-6353-4aba-97f1-faf9e350470a",
+      "name": "Spli: Line Items to Rows"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.sku }}",
+                    "rightValue": "CAM-PRO",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    },
+                    "id": "cb123c54-3030-4499-87bb-122dee7786fb"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "b28ad3ce-9293-4b2c-8ad6-d0ba44f8fb6b",
+                    "leftValue": "={{ $json.sku }}",
+                    "rightValue": "MIC-USB",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "9c7ce3a6-029c-4d1e-ab70-02aca378edfa",
+                    "leftValue": "={{ $json.sku }}",
+                    "rightValue": "EP-APD",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "looseTypeValidation": true,
+        "options": {
+          "fallbackOutput": "none"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        -1376,
+        -48
+      ],
+      "id": "01541eb7-f472-4e2c-8527-9a5f159ab310",
+      "name": "Logic: Sort by SKU Catagory"
+    },
+    {
+      "parameters": {
+        "authentication": "accessToken",
+        "operation": "update",
+        "orderId": "={{ $node[\"Shopify: On Order Created\"].json[\"id\"] }}",
+        "updateFields": {
+          "tags": "High-Value-Camera"
+        }
+      },
+      "type": "n8n-nodes-base.shopify",
+      "typeVersion": 1,
+      "position": [
+        -1152,
+        -128
+      ],
+      "id": "a185b6b0-160c-41b4-aef7-0138797f326a",
+      "name": "Shopify: Add SKU-Specific Tags"
+    },
+    {
+      "parameters": {
+        "authentication": "accessToken",
+        "operation": "update",
+        "orderId": "={{ $node[\"Shopify: On Order Created\"].json[\"id\"]  }}",
+        "updateFields": {
+          "tags": "Black_MicroPhone"
+        }
+      },
+      "type": "n8n-nodes-base.shopify",
+      "typeVersion": 1,
+      "position": [
+        -1152,
+        64
+      ],
+      "id": "1546c533-b737-432f-84a7-72bf4d9e6cd6",
+      "name": "Shopify: Add SKU-Specific Tags1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Shopify: On Order Created": {
+      "main": [
+        [
+          {
+            "node": "Spli: Line Items to Rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Spli: Line Items to Rows": {
+      "main": [
+        [
+          {
+            "node": "Logic: Sort by SKU Catagory",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Logic: Sort by SKU Catagory": {
+      "main": [
+        [
+          {
+            "node": "Shopify: Add SKU-Specific Tags",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Shopify: Add SKU-Specific Tags1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "4c294276-e78d-482e-b5e2-fa11cef38dcd",
+  "meta": {
+    "instanceId": "8b146e869da925f8999d33c052e74d2c62b483c7917680c58792ad7c67fd6a63"
+  },
+  "id": "BggCXyyOREvJZ7Cf",
+  "tags": []
+}
