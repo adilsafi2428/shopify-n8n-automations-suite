@@ -1,0 +1,140 @@
+{
+  "name": "05-Abondoned-Checkout-Tagging",
+  "nodes": [
+    {
+      "parameters": {
+        "authentication": "accessToken",
+        "topic": "checkouts/create"
+      },
+      "type": "n8n-nodes-base.shopifyTrigger",
+      "typeVersion": 1,
+      "position": [
+        -528,
+        1024
+      ],
+      "id": "2a7344ff-3a85-489b-a62f-3543aa501006",
+      "name": "Shopify: On Abondoned Checkout",
+      "webhookId": "79ce113a-9fee-4524-8c60-fbf35bcdf0c9"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "1ba62d33-6379-46c4-821b-d5bd9e7660ec",
+              "leftValue": "={{ $json.email }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -304,
+        1024
+      ],
+      "id": "0e75dbe1-3457-4ceb-bbe6-220c3680eea3",
+      "name": "Logic: Has Email?"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -80,
+        1024
+      ],
+      "id": "50a5ec0b-e6b8-48d5-a740-9dd5dd75730b",
+      "name": "Wait: 1 Hour",
+      "webhookId": "a1165a5c-5992-4988-a252-473260b00ce4"
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "=https://adil-safikhan.myshopify.com/admin/api/2024-01/customers/{{ $node[\"Shopify: On Abondoned Checkout\"].json.customer.id }}.json",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Shopify-Access-Token",
+              "value": "\"ADMIN API KEY\""
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"customer\": {\n    \"id\": {{ $node[\"Shopify: On Abondoned Checkout\"].json.customer.id }},\n    \"tags\": \"ABANDONED-CHECKOUT-USER\"\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        144,
+        1024
+      ],
+      "id": "7f72dc06-57a4-47c3-9c78-9f548b4efd11",
+      "name": "API: Tag Customer as Abanodoned Lead"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Shopify: On Abondoned Checkout": {
+      "main": [
+        [
+          {
+            "node": "Logic: Has Email?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Logic: Has Email?": {
+      "main": [
+        [
+          {
+            "node": "Wait: 1 Hour",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait: 1 Hour": {
+      "main": [
+        [
+          {
+            "node": "API: Tag Customer as Abanodoned Lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "78321212-9400-4a3e-a509-6f21a6efcc12",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "8b146e869da925f8999d33c052e74d2c62b483c7917680c58792ad7c67fd6a63"
+  },
+  "id": "FvBNjwcSaFRnqQ0t",
+  "tags": []
+}
