@@ -1,0 +1,574 @@
+{
+  "name": "06-Auto-Fill-Based-On-SKUs",
+  "nodes": [
+    {
+      "parameters": {
+        "authentication": "accessToken",
+        "topic": "orders/create"
+      },
+      "type": "n8n-nodes-base.shopifyTrigger",
+      "typeVersion": 1,
+      "position": [
+        48,
+        1152
+      ],
+      "id": "6c400804-497c-41f4-a2c4-606dcda28a97",
+      "name": "Shopify: On New Order",
+      "webhookId": "315afae7-e15e-4718-8ecf-d22637b1e290"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "8e8c80a8-e9d2-4afc-9df7-04c0588fdafb",
+              "leftValue": "={{ $json.line_items[0].sku }}",
+              "rightValue": "CH-CGR-WHT-001",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        272,
+        1152
+      ],
+      "id": "d2ef3cff-d759-4eb0-870f-26c3be10b08d",
+      "name": "Logic: Is Digital/Auto SKU?"
+    },
+    {
+      "parameters": {
+        "url": "=https://adil-safikhan.myshopify.com/admin/api/2025-10/orders/{{ $json.id }}/fulfillment_orders.json",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Shopify-Access-Token",
+              "value": "\"ADMIN API KEY\""
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        496,
+        1152
+      ],
+      "id": "ebf0f010-b44e-4cda-ae98-dbf4bbd51712",
+      "name": "API: Get Fulfillment Task ID"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://adil-safikhan.myshopify.com/admin/api/2025-10/fulfillments.json",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Shopify-Access-Token",
+              "value": "\"ADMIN API KEY\""
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"fulfillment\": {\n    \"line_items_by_fulfillment_order\": [\n      {\n        \"fulfillment_order_id\": {{ $node[\"API: Get Fulfillment Task ID\"].json.fulfillment_orders[0].id }},\n        \"fulfillment_order_line_items\": [\n          {\n            \"id\": {{ $node[\"API: Get Fulfillment Task ID\"].json.fulfillment_orders[0].line_items[0].id }},\n            \"quantity\": 1\n          }\n        ]\n      }\n    ]\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        720,
+        1152
+      ],
+      "id": "8ecc91b4-4d84-496e-944e-a1071a962eb7",
+      "name": "API: Execute Fulfillment"
+    },
+    {
+      "parameters": {
+        "content": "# 6. Auto Fulfillment for SKUs\n--> This is the system which will auto Fulfill the Order according to he SKUs, if we have digital Product along with Physical Product the digital Product will automatically Fulfill.\n",
+        "height": 384,
+        "width": 928
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -32,
+        928
+      ],
+      "typeVersion": 1,
+      "id": "4624e6ef-893d-4b02-8a71-7075bf29b5ff",
+      "name": "Sticky Note5"
+    }
+  ],
+  "pinData": {
+    "Shopify: On New Order": [
+      {
+        "json": {
+          "id": 5722606600344,
+          "admin_graphql_api_id": "gid://shopify/Order/5722606600344",
+          "app_id": 580111,
+          "browser_ip": "2404:3100:104b:4aa6:b5f6:7848:cc46:2532",
+          "buyer_accepts_marketing": false,
+          "cancel_reason": null,
+          "cancelled_at": null,
+          "cart_token": "hWN6iMxcaAKft6kh2pJVA5KL",
+          "checkout_id": 32085335015576,
+          "checkout_token": "5be4b6d7bcaaeed8c8b446806f90e1b1",
+          "client_details": {
+            "accept_language": "en-PK",
+            "browser_height": null,
+            "browser_ip": "2404:3100:104b:4aa6:b5f6:7848:cc46:2532",
+            "browser_width": null,
+            "session_hash": null,
+            "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36"
+          },
+          "closed_at": null,
+          "company": null,
+          "confirmation_number": "5I0QVPXZD",
+          "confirmed": true,
+          "contact_email": "adildawood2143@gmail.com",
+          "created_at": "2025-12-22T01:08:54-05:00",
+          "currency": "PKR",
+          "current_shipping_price_set": {
+            "shop_money": {
+              "amount": "0.00",
+              "currency_code": "PKR"
+            },
+            "presentment_money": {
+              "amount": "0.00",
+              "currency_code": "PKR"
+            }
+          },
+          "current_subtotal_price": "2999.00",
+          "current_subtotal_price_set": {
+            "shop_money": {
+              "amount": "2999.00",
+              "currency_code": "PKR"
+            },
+            "presentment_money": {
+              "amount": "2999.00",
+              "currency_code": "PKR"
+            }
+          },
+          "current_total_additional_fees_set": null,
+          "current_total_discounts": "0.00",
+          "current_total_discounts_set": {
+            "shop_money": {
+              "amount": "0.00",
+              "currency_code": "PKR"
+            },
+            "presentment_money": {
+              "amount": "0.00",
+              "currency_code": "PKR"
+            }
+          },
+          "current_total_duties_set": null,
+          "current_total_price": "2999.00",
+          "current_total_price_set": {
+            "shop_money": {
+              "amount": "2999.00",
+              "currency_code": "PKR"
+            },
+            "presentment_money": {
+              "amount": "2999.00",
+              "currency_code": "PKR"
+            }
+          },
+          "current_total_tax": "0.00",
+          "current_total_tax_set": {
+            "shop_money": {
+              "amount": "0.00",
+              "currency_code": "PKR"
+            },
+            "presentment_money": {
+              "amount": "0.00",
+              "currency_code": "PKR"
+            }
+          },
+          "customer_locale": "en-PK",
+          "device_id": null,
+          "discount_codes": [],
+          "duties_included": false,
+          "email": "adildawood2143@gmail.com",
+          "estimated_taxes": false,
+          "financial_status": "paid",
+          "fulfillment_status": null,
+          "landing_site": "/password",
+          "landing_site_ref": null,
+          "location_id": null,
+          "merchant_business_entity_id": "32381567128",
+          "merchant_of_record_app_id": null,
+          "name": "#1024",
+          "note": null,
+          "note_attributes": [],
+          "number": 24,
+          "order_number": 1024,
+          "order_status_url": "https://adil-safikhan.myshopify.com/73819783320/orders/68b6fb9ab7178c4569efa97a8281c9a9/authenticate?key=32e202b98017edc394346e296c12ed20",
+          "original_total_additional_fees_set": null,
+          "original_total_duties_set": null,
+          "payment_gateway_names": [
+            "bogus"
+          ],
+          "phone": null,
+          "po_number": null,
+          "presentment_currency": "PKR",
+          "processed_at": "2025-12-22T01:08:51-05:00",
+          "reference": null,
+          "referring_site": null,
+          "source_identifier": null,
+          "source_name": "web",
+          "source_url": null,
+          "subtotal_price": "2999.00",
+          "subtotal_price_set": {
+            "shop_money": {
+              "amount": "2999.00",
+              "currency_code": "PKR"
+            },
+            "presentment_money": {
+              "amount": "2999.00",
+              "currency_code": "PKR"
+            }
+          },
+          "tags": "",
+          "tax_exempt": false,
+          "tax_lines": [],
+          "taxes_included": false,
+          "test": true,
+          "token": "68b6fb9ab7178c4569efa97a8281c9a9",
+          "total_cash_rounding_payment_adjustment_set": {
+            "shop_money": {
+              "amount": "0.00",
+              "currency_code": "PKR"
+            },
+            "presentment_money": {
+              "amount": "0.00",
+              "currency_code": "PKR"
+            }
+          },
+          "total_cash_rounding_refund_adjustment_set": {
+            "shop_money": {
+              "amount": "0.00",
+              "currency_code": "PKR"
+            },
+            "presentment_money": {
+              "amount": "0.00",
+              "currency_code": "PKR"
+            }
+          },
+          "total_discounts": "0.00",
+          "total_discounts_set": {
+            "shop_money": {
+              "amount": "0.00",
+              "currency_code": "PKR"
+            },
+            "presentment_money": {
+              "amount": "0.00",
+              "currency_code": "PKR"
+            }
+          },
+          "total_line_items_price": "2999.00",
+          "total_line_items_price_set": {
+            "shop_money": {
+              "amount": "2999.00",
+              "currency_code": "PKR"
+            },
+            "presentment_money": {
+              "amount": "2999.00",
+              "currency_code": "PKR"
+            }
+          },
+          "total_outstanding": "0.00",
+          "total_price": "2999.00",
+          "total_price_set": {
+            "shop_money": {
+              "amount": "2999.00",
+              "currency_code": "PKR"
+            },
+            "presentment_money": {
+              "amount": "2999.00",
+              "currency_code": "PKR"
+            }
+          },
+          "total_shipping_price_set": {
+            "shop_money": {
+              "amount": "0.00",
+              "currency_code": "PKR"
+            },
+            "presentment_money": {
+              "amount": "0.00",
+              "currency_code": "PKR"
+            }
+          },
+          "total_tax": "0.00",
+          "total_tax_set": {
+            "shop_money": {
+              "amount": "0.00",
+              "currency_code": "PKR"
+            },
+            "presentment_money": {
+              "amount": "0.00",
+              "currency_code": "PKR"
+            }
+          },
+          "total_tip_received": "0.00",
+          "total_weight": 0,
+          "updated_at": "2025-12-22T01:08:55-05:00",
+          "user_id": null,
+          "billing_address": {
+            "first_name": "Abas",
+            "address1": "Peshawar, Khyber pekhtonkhwa, Pakistan",
+            "phone": "+923359331586",
+            "city": "Landi kotal",
+            "zip": "24470",
+            "province": null,
+            "country": "Pakistan",
+            "last_name": "Khan",
+            "address2": null,
+            "company": null,
+            "latitude": 34.00833739999999,
+            "longitude": 71.5188619,
+            "name": "Abas Khan",
+            "country_code": "PK",
+            "province_code": null
+          },
+          "customer": {
+            "id": 8414097342616,
+            "created_at": "2025-11-16T01:43:43-05:00",
+            "updated_at": "2025-12-22T01:08:54-05:00",
+            "first_name": "Adil",
+            "last_name": "Safi",
+            "state": "disabled",
+            "note": "",
+            "verified_email": true,
+            "multipass_identifier": null,
+            "tax_exempt": false,
+            "email": "adildawood2143@gmail.com",
+            "phone": null,
+            "currency": "PKR",
+            "tax_exemptions": [],
+            "admin_graphql_api_id": "gid://shopify/Customer/8414097342616",
+            "default_address": {
+              "id": 9698956574872,
+              "customer_id": 8414097342616,
+              "first_name": "Abas",
+              "last_name": "Khan",
+              "company": null,
+              "address1": "Peshawar, Khyber pekhtonkhwa, Pakistan",
+              "address2": null,
+              "city": "Landi kotal",
+              "province": null,
+              "country": "Pakistan",
+              "zip": "24470",
+              "phone": "+923359331586",
+              "name": "Abas Khan",
+              "province_code": null,
+              "country_code": "PK",
+              "country_name": "Pakistan",
+              "default": true
+            }
+          },
+          "discount_applications": [],
+          "fulfillments": [],
+          "line_items": [
+            {
+              "id": 13823068373144,
+              "admin_graphql_api_id": "gid://shopify/LineItem/13823068373144",
+              "attributed_staffs": [],
+              "current_quantity": 1,
+              "fulfillable_quantity": 1,
+              "fulfillment_service": "manual",
+              "fulfillment_status": null,
+              "gift_card": false,
+              "grams": 0,
+              "name": "High-Speed USB-C Power Adapter and Charging Cable Set - White",
+              "price": "2999.00",
+              "price_set": {
+                "shop_money": {
+                  "amount": "2999.00",
+                  "currency_code": "PKR"
+                },
+                "presentment_money": {
+                  "amount": "2999.00",
+                  "currency_code": "PKR"
+                }
+              },
+              "product_exists": true,
+              "product_id": 8895311708312,
+              "properties": [],
+              "quantity": 1,
+              "requires_shipping": true,
+              "sales_line_item_group_id": null,
+              "sku": "CH-CGR-WHT-001",
+              "taxable": false,
+              "title": "High-Speed USB-C Power Adapter and Charging Cable Set",
+              "total_discount": "0.00",
+              "total_discount_set": {
+                "shop_money": {
+                  "amount": "0.00",
+                  "currency_code": "PKR"
+                },
+                "presentment_money": {
+                  "amount": "0.00",
+                  "currency_code": "PKR"
+                }
+              },
+              "variant_id": 47472529309848,
+              "variant_inventory_management": "shopify",
+              "variant_title": "White",
+              "vendor": "Adil_Safikhan",
+              "tax_lines": [
+                {
+                  "channel_liable": false,
+                  "price": "0.00",
+                  "price_set": {
+                    "shop_money": {
+                      "amount": "0.00",
+                      "currency_code": "PKR"
+                    },
+                    "presentment_money": {
+                      "amount": "0.00",
+                      "currency_code": "PKR"
+                    }
+                  },
+                  "rate": 0.16,
+                  "title": "GST"
+                }
+              ],
+              "duties": [],
+              "discount_allocations": []
+            }
+          ],
+          "payment_terms": null,
+          "refunds": [],
+          "shipping_address": {
+            "first_name": "Abas",
+            "address1": "Peshawar, Khyber pekhtonkhwa, Pakistan",
+            "phone": "+923359331586",
+            "city": "Landi kotal",
+            "zip": "24470",
+            "province": null,
+            "country": "Pakistan",
+            "last_name": "Khan",
+            "address2": null,
+            "company": null,
+            "latitude": 34.00833739999999,
+            "longitude": 71.5188619,
+            "name": "Abas Khan",
+            "country_code": "PK",
+            "province_code": null
+          },
+          "shipping_lines": [
+            {
+              "id": 4713730867352,
+              "carrier_identifier": null,
+              "code": "Standard",
+              "current_discounted_price_set": {
+                "shop_money": {
+                  "amount": "0.00",
+                  "currency_code": "PKR"
+                },
+                "presentment_money": {
+                  "amount": "0.00",
+                  "currency_code": "PKR"
+                }
+              },
+              "discounted_price": "0.00",
+              "discounted_price_set": {
+                "shop_money": {
+                  "amount": "0.00",
+                  "currency_code": "PKR"
+                },
+                "presentment_money": {
+                  "amount": "0.00",
+                  "currency_code": "PKR"
+                }
+              },
+              "is_removed": false,
+              "phone": null,
+              "price": "0.00",
+              "price_set": {
+                "shop_money": {
+                  "amount": "0.00",
+                  "currency_code": "PKR"
+                },
+                "presentment_money": {
+                  "amount": "0.00",
+                  "currency_code": "PKR"
+                }
+              },
+              "requested_fulfillment_service_id": null,
+              "source": "shopify",
+              "title": "Standard",
+              "tax_lines": [],
+              "discount_allocations": []
+            }
+          ],
+          "returns": [],
+          "line_item_groups": []
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Shopify: On New Order": {
+      "main": [
+        [
+          {
+            "node": "Logic: Is Digital/Auto SKU?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Logic: Is Digital/Auto SKU?": {
+      "main": [
+        [
+          {
+            "node": "API: Get Fulfillment Task ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "API: Get Fulfillment Task ID": {
+      "main": [
+        [
+          {
+            "node": "API: Execute Fulfillment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "0ca185ec-2477-401e-9774-5eda0e01a08f",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "8b146e869da925f8999d33c052e74d2c62b483c7917680c58792ad7c67fd6a63"
+  },
+  "id": "5LOnC8BKqdD0wjJA",
+  "tags": []
+}

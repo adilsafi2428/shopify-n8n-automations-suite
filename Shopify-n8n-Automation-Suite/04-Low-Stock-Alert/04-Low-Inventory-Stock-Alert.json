@@ -1,0 +1,155 @@
+{
+  "name": "04-Low-Inventory-Stock-Alert",
+  "nodes": [
+    {
+      "parameters": {
+        "authentication": "accessToken",
+        "topic": "inventory_levels/update"
+      },
+      "type": "n8n-nodes-base.shopifyTrigger",
+      "typeVersion": 1,
+      "position": [
+        -64,
+        224
+      ],
+      "id": "aef7a70d-4687-4f8e-b950-b14de958fb4e",
+      "name": "Shopify: On Inventory Level Updated",
+      "webhookId": "7dc7153b-d2d8-45d7-93e0-de0568840689"
+    },
+    {
+      "parameters": {
+        "url": "=https://adil-safikhan.myshopify.com/admin/api/2025-10/inventory_items/{{ $json.inventory_item_id }}.json",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Shopify-Access-Token",
+              "value": "\"ADMIN API KEY\""
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        160,
+        224
+      ],
+      "id": "61248949-f063-4b6f-b5da-954799b7959f",
+      "name": "API: Get SKU from Inventory Item ID"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "1f09d497-e285-498b-b4cb-13d6ab06fd7f",
+              "leftValue": "={{ $node[\"Shopify: On Inventory Level Updated\"].json.available }}",
+              "rightValue": 5,
+              "operator": {
+                "type": "number",
+                "operation": "lte"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        384,
+        224
+      ],
+      "id": "115d1c32-9799-4d6a-8135-0def0667054f",
+      "name": "Logic: Check if Stock <= 5"
+    },
+    {
+      "parameters": {
+        "sendTo": "adilsafi2828@gmail.com",
+        "subject": "=⚠️ LOW STOCK ALERT:{{ $json.inventory_item.sku }}  ( {{ $('Shopify: On Inventory Level Updated').item.json.available }} left)",
+        "message": "=<!DOCTYPE html>\n<html>\n<head>\n<style>\n  .container { font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, Helvetica, Arial, sans-serif; max-width: 600px; border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden; color: #333; }\n  .header { background-color: #f4f6f8; padding: 20px; text-align: center; border-bottom: 1px solid #e0e0e0; }\n  .alert-icon { font-size: 40px; }\n  .content { padding: 30px; line-height: 1.6; }\n  .product-box { background-color: #fff9fa; border: 1px solid #ffcc00; padding: 15px; border-radius: 5px; margin: 20px 0; }\n  .sku-text { font-weight: bold; color: #d72c0d; }\n  .button-container { text-align: center; margin-top: 30px; }\n  .btn { background-color: #008060; color: white !important; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block; }\n  .footer { font-size: 12px; color: #888; text-align: center; padding: 20px; }\n</style>\n</head>\n<body>\n  <div class=\"container\">\n    <div class=\"header\">\n      <div class=\"alert-icon\">⚠️</div>\n      <h2 style=\"margin:0;\">Inventory Alert</h2>\n    </div>\n    <div class=\"content\">\n      <p>Master, the following product has dropped below the safety threshold:</p>\n      \n      <div class=\"product-box\">\n        <p style=\"margin:5px 0;\"><strong>Product SKU:</strong> <span class=\"sku-text\">{{ $json.inventory_item.sku }}</span></p>\n        <p style=\"margin:5px 0;\"><strong>Current Stock:</strong> <span style=\"font-size: 18px; font-weight: bold;\">{{ $('Shopify: On Inventory Level Updated').item.json.available }}</span> Units Remaining</p>\n      </div>\n\n      <p>Please restock this item soon to avoid losing sales on the <strong>Adil Safi Khan</strong> store.</p>\n      \n      <div class=\"button-container\">\n        <a href=\"https://admin.shopify.com/store/adil-safikhan/products/inventory?location_id=83277578392&selectedColumns=VARIANT_NAME%2CSKU%2CUNAVAILABLE_QUANTITY%2CCOMMITTED_QUANTITY%2CAVAILABLE_QUANTITY%2CON_HAND_QUANTITY%2CINCOMING_QUANTITY\" class=\"btn\">Update Inventory in Shopify</a>\n      </div>\n    </div>\n    <div class=\"footer\">\n      This is an automated message from your n8n Workflows - Day 25\n    </div>\n  </div>\n</body>\n</html>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        608,
+        224
+      ],
+      "id": "85321953-5af5-40fe-9d3d-5267391057b5",
+      "name": "Gmail: Send HTML Low Stock Alert",
+      "webhookId": "e8939b7e-4308-4d67-8495-05b1201d1606"
+    },
+    {
+      "parameters": {
+        "content": "# 4. Inventory Alert!\n--> This Workflow run every time the Inventory level updates and whenever the inventory goes down to a specific ## \nThroshold we sit, \nIt send the HTML Alert Email to the Shop Owner or Inventory Manager in which they can directly go to the Inventory Page of the shop and can see the Stock level Live.\n",
+        "height": 384,
+        "width": 928
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -144,
+        0
+      ],
+      "typeVersion": 1,
+      "id": "ec516870-dc13-43cc-a9bf-1d786aea6229",
+      "name": "Sticky Note3"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Shopify: On Inventory Level Updated": {
+      "main": [
+        [
+          {
+            "node": "API: Get SKU from Inventory Item ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "API: Get SKU from Inventory Item ID": {
+      "main": [
+        [
+          {
+            "node": "Logic: Check if Stock <= 5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Logic: Check if Stock <= 5": {
+      "main": [
+        [
+          {
+            "node": "Gmail: Send HTML Low Stock Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "094da0ac-bb76-433d-ac8a-de5e9bde9be1",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "8b146e869da925f8999d33c052e74d2c62b483c7917680c58792ad7c67fd6a63"
+  },
+  "id": "VsFks9MzaGc31acn",
+  "tags": []
+}
